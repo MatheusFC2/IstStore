@@ -60,6 +60,10 @@ export function Main() {
         });
     }
 
+    function handleResetOrder() {
+        setCartItems([]);
+    }
+
     return (
         <>
             <Container>
@@ -78,6 +82,7 @@ export function Main() {
                         cartItems={cartItems}
                         onAdd={handleAddToCart}
                         onDecrement={handleDecrementCartItem}
+                        onConfirmOrder={handleResetOrder}
                     />
                 </FooterContainer>
             </Footer>

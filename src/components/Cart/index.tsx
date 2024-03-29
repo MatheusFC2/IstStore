@@ -23,9 +23,15 @@ interface CartProps {
     cartItems: ICartItem[];
     onAdd: (product: IProduct) => void;
     onDecrement: (product: IProduct) => void;
+    onConfirmOrder: () => void;
 }
 
-export function Cart({ cartItems, onAdd, onDecrement }: CartProps) {
+export function Cart({
+    cartItems,
+    onAdd,
+    onDecrement,
+    onConfirmOrder,
+}: CartProps) {
     const [isConfirmingOrder, setIsConfirmingOrder] = useState(false);
     // Aqui estou calculando o total do carrinho de compras com base nos preços e quantidades
     const total = cartItems.reduce((acc, item) => {
@@ -35,12 +41,14 @@ export function Cart({ cartItems, onAdd, onDecrement }: CartProps) {
     function handleConfirmOrder() {
         setIsConfirmingOrder(true);
     }
+    function handleOk() {
+        onConfirmOrder();
+        setIsConfirmingOrder(false);
+    }
+
     return (
         <>
-            <ConfirmOrderModal
-                visible={isConfirmingOrder}
-                onClose={() => setIsConfirmingOrder(false)}
-            />
+            <ConfirmOrderModal visible={isConfirmingOrder} onClose={handleOk} />
             {cartItems.length > 0 && (
                 <FlatList
                     data={cartItems}
