@@ -33,6 +33,8 @@ export const Footer = styled.View`
 
 export const FooterContainer = styled.SafeAreaView`
     flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
 `;
 
 export const PriceContainer = styled.View``;

@@ -1,8 +1,18 @@
 import { Modal } from "react-native";
 import { IProduct } from "../types/Product";
-import { CloseButton, Header, Image, ModalBody } from "./styles";
+import {
+    CloseButton,
+    Footer,
+    FooterContainer,
+    Header,
+    Image,
+    ModalBody,
+    PriceContainer,
+} from "./styles";
 import { Close } from "../Icons/Close";
 import { Text } from "../Text";
+import { Button } from "../Button";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface ProductsModalProps {
     visible: boolean;
@@ -41,6 +51,19 @@ export function ProductsModal({
                     </Text>
                 </Header>
             </ModalBody>
+            <Footer>
+                <FooterContainer>
+                    <PriceContainer>
+                        <Text>Preço</Text>
+                        <Text size={20} weight="600">
+                            {formatCurrency(product.price)}
+                        </Text>
+                    </PriceContainer>
+                    <Button onPress={() => alert("Adicionado ao carrinho")}>
+                        Adicionar ao Carrinhos
+                    </Button>
+                </FooterContainer>
+            </Footer>
         </Modal>
     );
 }
