@@ -16,6 +16,8 @@ import { PlusCircle } from "../Icons/PlusCircle";
 import { MinusCircle } from "../Icons/MinusCircle";
 import { Button } from "../Button";
 import { IProduct } from "../types/Product";
+import { useState } from "react";
+import { ConfirmOrderModal } from "../OrderConfirmModal";
 
 interface CartProps {
     cartItems: ICartItem[];
@@ -24,13 +26,21 @@ interface CartProps {
 }
 
 export function Cart({ cartItems, onAdd, onDecrement }: CartProps) {
+    const [isConfirmingOrder, setIsConfirmingOrder] = useState(false);
     // Aqui estou calculando o total do carrinho de compras com base nos preços e quantidades
     const total = cartItems.reduce((acc, item) => {
         return acc + item.product.price * item.quantity;
     }, 0);
 
+    function handleConfirmOrder() {
+        setIsConfirmingOrder(true);
+    }
     return (
         <>
+            <ConfirmOrderModal
+                visible={isConfirmingOrder}
+                onClose={() => setIsConfirmingOrder(false)}
+            />
             {cartItems.length > 0 && (
                 <FlatList
                     data={cartItems}
@@ -93,7 +103,7 @@ export function Cart({ cartItems, onAdd, onDecrement }: CartProps) {
                 </TotalContainer>
                 <Button
                     disabled={cartItems.length === 0}
-                    onPress={() => alert("Pedido confirmado")}
+                    onPress={() => handleConfirmOrder()}
                 >
                     Confirmar Pedido
                 </Button>
