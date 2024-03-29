@@ -15,12 +15,20 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { PlusCircle } from "../Icons/PlusCircle";
 import { MinusCircle } from "../Icons/MinusCircle";
 import { Button } from "../Button";
+import { IProduct } from "../types/Product";
 
 interface CartProps {
     cartItems: ICartItem[];
+    onAdd: (product: IProduct) => void;
+    onDecrement: (product: IProduct) => void;
 }
 
-export function Cart({ cartItems }: CartProps) {
+export function Cart({ cartItems, onAdd, onDecrement }: CartProps) {
+    // Aqui estou calculando o total do carrinho de compras com base nos preços e quantidades
+    const total = cartItems.reduce((acc, item) => {
+        return acc + item.product.price * item.quantity;
+    }, 0);
+
     return (
         <>
             {cartItems.length > 0 && (
@@ -52,10 +60,17 @@ export function Cart({ cartItems }: CartProps) {
                                 </ProductDetails>
                             </ProductContainer>
                             <Actions>
-                                <TouchableOpacity style={{ marginRight: 24 }}>
+                                <TouchableOpacity
+                                    style={{ marginRight: 24 }}
+                                    onPress={() => onAdd(cartItems.product)}
+                                >
                                     <PlusCircle />
                                 </TouchableOpacity>
-                                <TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        onDecrement(cartItems.product)
+                                    }
+                                >
                                     <MinusCircle />
                                 </TouchableOpacity>
                             </Actions>
@@ -69,7 +84,7 @@ export function Cart({ cartItems }: CartProps) {
                         <>
                             <Text color="#666">Total</Text>
                             <Text size={20} weight="600">
-                                {formatCurrency(20)}
+                                {formatCurrency(total)}
                             </Text>
                         </>
                     ) : (
@@ -78,7 +93,7 @@ export function Cart({ cartItems }: CartProps) {
                 </TotalContainer>
                 <Button
                     disabled={cartItems.length === 0}
-                    onPress={() => alert("Pedido Confirmado")}
+                    onPress={() => alert("Pedido confirmado")}
                 >
                     Confirmar Pedido
                 </Button>

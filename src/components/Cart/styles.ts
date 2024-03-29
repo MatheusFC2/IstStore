@@ -26,7 +26,9 @@ export const QuantityContainer = styled.View`
     margin-left: 12px;
 `;
 
-export const ProductDetails = styled.View``;
+export const ProductDetails = styled.View`
+    flex: 1;
+`;
 
 export const Summary = styled.View`
     flex-direction: row;

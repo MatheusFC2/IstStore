@@ -11,85 +11,54 @@ import {
     Footer,
     FooterContainer,
 } from "./styles";
+import { IProduct } from "../../components/types/Product";
 
 export function Main() {
-    const [cartItems, setCartItems] = useState<ICartItem[]>([
-        {
-            quantity: 1,
-            product: {
-                id: "1",
-                title: "Camiseta",
-                price: 49.9,
-                image: "https://source.unsplash.com/random",
-                description: "",
-                category: "",
-                rating: {
-                    rate: 0,
-                    count: 0,
-                },
-            },
-        },
-        {
-            quantity: 1,
-            product: {
-                id: "2",
-                title: "Camiseta",
-                price: 49.9,
-                image: "https://source.unsplash.com/random",
-                description: "",
-                category: "",
-                rating: {
-                    rate: 0,
-                    count: 0,
-                },
-            },
-        },
-        {
-            quantity: 1,
-            product: {
-                id: "3",
-                title: "Camiseta",
-                price: 49.9,
-                image: "https://source.unsplash.com/random",
-                description: "",
-                category: "",
-                rating: {
-                    rate: 0,
-                    count: 0,
-                },
-            },
-        },
-        {
-            quantity: 1,
-            product: {
-                id: "4",
-                title: "Camiseta",
-                price: 49.9,
-                image: "https://source.unsplash.com/random",
-                description: "",
-                category: "",
-                rating: {
-                    rate: 0,
-                    count: 0,
-                },
-            },
-        },
-        {
-            quantity: 1,
-            product: {
-                id: "5",
-                title: "Camiseta",
-                price: 49.9,
-                image: "https://source.unsplash.com/random",
-                description: "",
-                category: "",
-                rating: {
-                    rate: 0,
-                    count: 0,
-                },
-            },
-        },
-    ]);
+    const [cartItems, setCartItems] = useState<ICartItem[]>([]);
+
+    function handleAddToCart(product: IProduct) {
+        // Essa função vai verificar se o produto já está no carrinho e se estiver ele vai somar 1 na quantidade
+        setCartItems((prevState) => {
+            const itemIndex = prevState.findIndex(
+                (cartItems) => cartItems.product.id === product.id
+            );
+
+            if (itemIndex < 0) {
+                return prevState.concat({ product, quantity: 1 });
+            }
+            const newCartItems = [...prevState];
+            const item = newCartItems[itemIndex];
+            newCartItems[itemIndex] = {
+                ...item,
+                quantity: item.quantity + 1,
+            };
+            return newCartItems;
+        });
+    }
+
+    function handleDecrementCartItem(product: IProduct) {
+        setCartItems((prevState) => {
+            const itemIndex = prevState.findIndex(
+                (cartItems) => cartItems.product.id === product.id
+            );
+
+            const item = prevState[itemIndex];
+            const newCartItems = [...prevState];
+
+            if (item.quantity === 1) {
+                const newCartItems = [...prevState];
+                newCartItems.splice(itemIndex, 1);
+                return newCartItems;
+            }
+
+            newCartItems[itemIndex] = {
+                ...item,
+                quantity: item.quantity - 1,
+            };
+
+            return newCartItems;
+        });
+    }
 
     return (
         <>
@@ -100,12 +69,16 @@ export function Main() {
                     <Categories />
                 </CategoriesContainer>
                 <CatalogContainer>
-                    <Products />
+                    <Products onAddToCart={handleAddToCart} />
                 </CatalogContainer>
             </Container>
             <Footer>
                 <FooterContainer>
-                    <Cart cartItems={cartItems} />
+                    <Cart
+                        cartItems={cartItems}
+                        onAdd={handleAddToCart}
+                        onDecrement={handleDecrementCartItem}
+                    />
                 </FooterContainer>
             </Footer>
         </>
