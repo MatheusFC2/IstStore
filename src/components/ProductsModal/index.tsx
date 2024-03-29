@@ -18,17 +18,22 @@ interface ProductsModalProps {
     visible: boolean;
     onClose: () => void;
     product: IProduct;
+    onAddToCart: (product: IProduct) => void;
 }
 
 export function ProductsModal({
     visible,
     onClose,
     product,
+    onAddToCart,
 }: ProductsModalProps) {
     if (!product) {
         return null;
     }
-    console.log(product.image);
+    function handleAddToCart() {
+        onAddToCart(product!);
+        onClose();
+    }
     return (
         <Modal
             visible={visible}
@@ -59,7 +64,7 @@ export function ProductsModal({
                             {formatCurrency(product.price)}
                         </Text>
                     </PriceContainer>
-                    <Button onPress={() => alert("Adicionado ao carrinho")}>
+                    <Button onPress={handleAddToCart}>
                         Adicionar ao Carrinhos
                     </Button>
                 </FooterContainer>
