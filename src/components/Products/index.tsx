@@ -1,11 +1,13 @@
-import { FlatList, Image, TouchableOpacity, View } from "react-native";
+import { FlatList, View } from "react-native";
+// import { Text as RNText } from "react-native";
 import { Text } from "../Text";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { ProductsModal } from "../ProductsModal";
 import { IProduct } from "../types/Product";
-import { Button } from "../Button";
+import * as S from "./styles";
+import { PlusCircle } from "../Icons/PlusCircle";
 
 interface ProductsProps {
     onAddToCart: (product: IProduct) => void;
@@ -36,24 +38,24 @@ export function Products({ onAddToCart }: ProductsProps) {
     }, []);
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity onPress={() => handleOpenModal(item)}>
-            <View>
-                <Image
-                    source={{ uri: item.image }}
-                    style={{ height: 120, width: 150 }}
-                />
-            </View>
-            <View>
-                <Text size={12} weight="600">
+        <S.Product onPress={() => handleOpenModal(item)}>
+            <S.ProductImage
+                source={{ uri: item.image }}
+                style={{ height: 120, width: 150 }}
+            />
+            <S.ProductDetails>
+                <Text size={15} weight="600">
                     {item.title}
                 </Text>
-                <Text size={10}>{item.description}</Text>
+                <Text size={12} numberOfLines={3}>
+                    {item.description}
+                </Text>
                 <Text weight="600">{formatCurrency(item.price)}</Text>
-                <Button onPress={() => onAddToCart(item)}>
-                    Adicionar ao carrinho
-                </Button>
-            </View>
-        </TouchableOpacity>
+            </S.ProductDetails>
+            <S.AddToCartBtn onPress={() => onAddToCart(item)}>
+                <PlusCircle />
+            </S.AddToCartBtn>
+        </S.Product>
     );
 
     return (
