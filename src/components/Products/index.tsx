@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList } from "react-native";
+import { View, FlatList, ActivityIndicator } from "react-native";
 import axios from "axios";
 import { Text } from "../Text";
 import { ProductsModal } from "../ProductsModal";
@@ -12,7 +12,8 @@ interface ProductsProps {
 }
 
 export function Products({ onAddToCart }: ProductsProps) {
-    const [loading, setLoading] = useState(true);
+    const [loadingCategories, setLoadingCategories] = useState(true);
+    const [loadingProducts, setLoadingProducts] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(
         null
@@ -24,19 +25,19 @@ export function Products({ onAddToCart }: ProductsProps) {
     const [products, setProducts] = useState<IProduct[]>([]);
 
     useEffect(() => {
-        setLoading(true);
+        setLoadingCategories(true);
         axios
             .get<string[]>("https://fakestoreapi.com/products/categories")
             .then((res) => {
                 setCategories(res.data);
             })
             .catch((e) => console.log(e))
-            .finally(() => setLoading(false));
+            .finally(() => setLoadingCategories(false));
     }, []);
 
     useEffect(() => {
         if (selectedCategory) {
-            setLoading(true);
+            setLoadingProducts(true);
             axios
                 .get<IProduct[]>(
                     `https://fakestoreapi.com/products/category/${selectedCategory}`
@@ -45,17 +46,17 @@ export function Products({ onAddToCart }: ProductsProps) {
                     setProducts(res.data);
                 })
                 .catch((e) => console.log(e))
-                .finally(() => setLoading(false));
+                .finally(() => setLoadingProducts(false));
         } else {
             // Carregar todos os produtos quando nenhuma categoria for selecionada
-            setLoading(true);
+            setLoadingProducts(true);
             axios
                 .get<IProduct[]>("https://fakestoreapi.com/products")
                 .then((res) => {
                     setProducts(res.data);
                 })
                 .catch((e) => console.log(e))
-                .finally(() => setLoading(false));
+                .finally(() => setLoadingProducts(false));
         }
     }, [selectedCategory]);
 
@@ -73,34 +74,53 @@ export function Products({ onAddToCart }: ProductsProps) {
 
     return (
         <View>
-            {loading && (
+            {loadingCategories && (
                 <View>
-                    <Text>Loading...</Text>
+                    <ActivityIndicator size="large" />
+                    <Text>Loading Categories...</Text>
                 </View>
             )}
-            <Categories
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onSelectCategory={handleCategorySelect}
-            />
-            <ProductsModal
-                visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
-                product={selectedProduct as IProduct}
-                onAddToCart={onAddToCart}
-            />
-            <FlatList
-                data={products}
-                showsVerticalScrollIndicator={false}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <ProductItem
-                        product={item}
-                        onOpenModal={handleOpenModal}
+            {loadingProducts && (
+                <View
+                    style={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: "100%",
+                    }}
+                >
+                    <ActivityIndicator size="large" />
+                    <Text>Loading Products...</Text>
+                </View>
+            )}
+            {!loadingCategories && (
+                <Categories
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={handleCategorySelect}
+                />
+            )}
+            {!loadingProducts && (
+                <>
+                    <ProductsModal
+                        visible={isModalVisible}
+                        onClose={() => setIsModalVisible(false)}
+                        product={selectedProduct as IProduct}
                         onAddToCart={onAddToCart}
                     />
-                )}
-            />
+                    <FlatList
+                        data={products}
+                        showsVerticalScrollIndicator={false}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={({ item }) => (
+                            <ProductItem
+                                product={item}
+                                onOpenModal={handleOpenModal}
+                                onAddToCart={onAddToCart}
+                            />
+                        )}
+                    />
+                </>
+            )}
         </View>
     );
 }
