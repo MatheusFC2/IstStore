@@ -30,10 +30,12 @@ export function ProductsModal({
     if (!product) {
         return null;
     }
+
     function handleAddToCart() {
         onAddToCart(product!);
         onClose();
     }
+
     return (
         <Modal
             visible={visible}

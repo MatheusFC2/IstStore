@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList, ActivityIndicator } from "react-native";
+import {
+    View,
+    FlatList,
+    ActivityIndicator,
+    TouchableOpacity,
+} from "react-native";
 import axios from "axios";
 import { Text } from "../Text";
 import { ProductsModal } from "../ProductsModal";
@@ -48,7 +53,6 @@ export function Products({ onAddToCart }: ProductsProps) {
                 .catch((e) => console.log(e))
                 .finally(() => setLoadingProducts(false));
         } else {
-            // Carregar todos os produtos quando nenhuma categoria for selecionada
             setLoadingProducts(true);
             axios
                 .get<IProduct[]>("https://fakestoreapi.com/products")
@@ -61,15 +65,19 @@ export function Products({ onAddToCart }: ProductsProps) {
     }, [selectedCategory]);
 
     function handleCategorySelect(category: string) {
-        // Se a categoria clicada for a mesma que já está selecionada, desmarque-a
         setSelectedCategory((prevCategory) =>
             prevCategory === category ? null : category
         );
     }
 
-    function handleOpenModal(product: IProduct) {
+    function handleOpenProductDetails(product: IProduct) {
         setIsModalVisible(true);
         setSelectedProduct(product);
+    }
+
+    function handleCloseModal() {
+        setIsModalVisible(false);
+        setSelectedProduct(null);
     }
 
     return (
@@ -103,7 +111,7 @@ export function Products({ onAddToCart }: ProductsProps) {
                 <>
                     <ProductsModal
                         visible={isModalVisible}
-                        onClose={() => setIsModalVisible(false)}
+                        onClose={handleCloseModal}
                         product={selectedProduct as IProduct}
                         onAddToCart={onAddToCart}
                     />
@@ -112,11 +120,15 @@ export function Products({ onAddToCart }: ProductsProps) {
                         showsVerticalScrollIndicator={false}
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({ item }) => (
-                            <ProductItem
-                                product={item}
-                                onOpenModal={handleOpenModal}
-                                onAddToCart={onAddToCart}
-                            />
+                            <TouchableOpacity
+                                onPress={() => handleOpenProductDetails(item)}
+                            >
+                                <ProductItem
+                                    product={item}
+                                    onAddToCart={onAddToCart}
+                                    onOpenModal={handleOpenProductDetails}
+                                />
+                            </TouchableOpacity>
                         )}
                     />
                 </>

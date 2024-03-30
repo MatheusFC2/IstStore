@@ -1,16 +1,9 @@
 import { useState } from "react";
 import { Cart } from "../../components/Cart";
-import { Categories } from "../../components/Categories";
 import { Header } from "../../components/Header";
 import { Products } from "../../components/Products";
 import { ICartItem } from "../../components/types/CartItem";
-import {
-    CatalogContainer,
-    CategoriesContainer,
-    Container,
-    Footer,
-    FooterContainer,
-} from "./styles";
+import { CatalogContainer, Container, Footer, FooterContainer } from "./styles";
 import { IProduct } from "../../components/types/Product";
 
 export function Main() {
