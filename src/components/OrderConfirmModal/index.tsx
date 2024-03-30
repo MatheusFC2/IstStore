@@ -22,7 +22,7 @@ export function ConfirmOrderModal({ visible, onClose }: Props) {
                     Pedido confirmado
                 </Text>
                 <Text color="#fff" opacity={0.9} style={{ marginTop: 4 }}>
-                    O pedido já entrou na fila de produção!
+                    Obrigado por comprar conosco!
                 </Text>
 
                 <S.OkButton onPress={onClose}>
