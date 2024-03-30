@@ -68,10 +68,10 @@ export function Main() {
         <>
             <Container>
                 <Header></Header>
-
+                {/*
                 <CategoriesContainer>
                     <Categories />
-                </CategoriesContainer>
+                </CategoriesContainer> */}
                 <CatalogContainer>
                     <Products onAddToCart={handleAddToCart} />
                 </CatalogContainer>

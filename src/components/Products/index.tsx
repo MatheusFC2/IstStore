@@ -1,4 +1,4 @@
-import { FlatList, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 // import { Text as RNText } from "react-native";
 import { Text } from "../Text";
 import axios from "axios";
@@ -8,6 +8,7 @@ import { ProductsModal } from "../ProductsModal";
 import { IProduct } from "../types/Product";
 import * as S from "./styles";
 import { PlusCircle } from "../Icons/PlusCircle";
+import { Category, Icon } from "../Categories/styles";
 
 interface ProductsProps {
     onAddToCart: (product: IProduct) => void;
@@ -20,6 +21,38 @@ export function Products({ onAddToCart }: ProductsProps) {
     const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(
         null
     );
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+
+    useEffect(() => {
+        setLoading(true);
+        axios
+            .get("https://fakestoreapi.com/products/categories")
+            .then((res) => {
+                setCategories(res.data);
+            })
+            .catch((e) => console.log(e))
+            .finally(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+        if (selectedCategory) {
+            setLoading(true);
+            axios
+                .get(
+                    `https://fakestoreapi.com/products/category/${selectedCategory}`
+                )
+                .then((res) => {
+                    setProducts(res.data);
+                })
+                .catch((e) => console.log(e))
+                .finally(() => setLoading(false));
+        }
+    }, [selectedCategory]);
+
+    const handleCategorySelect = (category) => {
+        setSelectedCategory(category);
+    };
 
     function handleOpenModal(product: IProduct) {
         setIsModalVisible(true);
@@ -58,6 +91,16 @@ export function Products({ onAddToCart }: ProductsProps) {
         </S.Product>
     );
 
+    const renderCategories = ({ item }) => (
+        <Category>
+            <TouchableOpacity onPress={() => handleCategorySelect(item)}>
+                <Icon>
+                    <Text>{item}</Text>
+                </Icon>
+            </TouchableOpacity>
+        </Category>
+    );
+
     return (
         <>
             {loading ? (
@@ -65,6 +108,13 @@ export function Products({ onAddToCart }: ProductsProps) {
                     <Text>Loading...</Text>
                 </View>
             ) : null}
+            <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                data={categories}
+                keyExtractor={(item) => item}
+                renderItem={renderCategories}
+            />
             <ProductsModal
                 visible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}
