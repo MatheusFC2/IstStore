@@ -1,68 +1,52 @@
-import React, { useEffect, useState } from "react";
-import { Text, View, FlatList, TouchableOpacity } from "react-native";
-import axios from "axios";
+import React from "react";
+import { FlatList, TouchableOpacity } from "react-native";
 import { Category, Icon } from "./styles";
+import { Text } from "../Text";
 
-export function Categories() {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [products, setProducts] = useState([]);
+interface CategoriesProps {
+    categories: string[];
+    selectedCategory: string | null;
+    onSelectCategory: (category: string) => void;
+}
 
-    useEffect(() => {
-        setLoading(true);
-        axios
-            .get("https://fakestoreapi.com/products/categories")
-            .then((res) => {
-                setCategories(res.data);
-            })
-            .catch((e) => console.log(e))
-            .finally(() => setLoading(false));
-    }, []);
-
-    useEffect(() => {
-        if (selectedCategory) {
-            setLoading(true);
-            axios
-                .get(
-                    `https://fakestoreapi.com/products/category/${selectedCategory}`
-                )
-                .then((res) => {
-                    setProducts(res.data);
-                })
-                .catch((e) => console.log(e))
-                .finally(() => setLoading(false));
-        }
-    }, [selectedCategory]);
-
-    const handleCategorySelect = (category) => {
-        setSelectedCategory(category);
+export function Categories({
+    categories,
+    selectedCategory,
+    onSelectCategory,
+}: CategoriesProps) {
+    const renderCategory = ({ item }: { item: string }) => {
+        const isActive = selectedCategory === item;
+        return (
+            <Category
+                style={{
+                    opacity: isActive && 1,
+                    marginBottom: 10,
+                    marginTop: 20,
+                }}
+            >
+                <TouchableOpacity onPress={() => onSelectCategory(item)}>
+                    <Icon>
+                        <Text
+                            style={{
+                                fontWeight: isActive ? "bold" : "normal",
+                                color: isActive ? "#FF6503" : "#666",
+                            }}
+                        >
+                            {item}
+                        </Text>
+                    </Icon>
+                </TouchableOpacity>
+            </Category>
+        );
     };
 
-    const renderItem = ({ item }) => (
-        <Category>
-            <TouchableOpacity onPress={() => handleCategorySelect(item)}>
-                <Icon>
-                    <Text>{item}</Text>
-                </Icon>
-            </TouchableOpacity>
-        </Category>
-    );
-
     return (
-        <View>
-            {loading && (
-                <View>
-                    <Text>Loading...</Text>
-                </View>
-            )}
-            <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                data={categories}
-                keyExtractor={(item) => item}
-                renderItem={renderItem}
-            />
-        </View>
+        <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={categories}
+            keyExtractor={(item) => item}
+            renderItem={renderCategory}
+        />
     );
 }

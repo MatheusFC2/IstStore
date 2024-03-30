@@ -1,33 +1,32 @@
-import { FlatList, TouchableOpacity, View } from "react-native";
-// import { Text as RNText } from "react-native";
-import { Text } from "../Text";
+import React, { useEffect, useState } from "react";
+import { View, FlatList } from "react-native";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { formatCurrency } from "../../utils/formatCurrency";
+import { Text } from "../Text";
 import { ProductsModal } from "../ProductsModal";
+import { Categories } from "../Categories";
+import { ProductItem } from "../ProductItem";
 import { IProduct } from "../types/Product";
-import * as S from "./styles";
-import { PlusCircle } from "../Icons/PlusCircle";
-import { Category, Icon } from "../Categories/styles";
 
 interface ProductsProps {
     onAddToCart: (product: IProduct) => void;
 }
 
 export function Products({ onAddToCart }: ProductsProps) {
-    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(
         null
     );
-    const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [categories, setCategories] = useState<string[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(
+        null
+    );
+    const [products, setProducts] = useState<IProduct[]>([]);
 
     useEffect(() => {
         setLoading(true);
         axios
-            .get("https://fakestoreapi.com/products/categories")
+            .get<string[]>("https://fakestoreapi.com/products/categories")
             .then((res) => {
                 setCategories(res.data);
             })
@@ -39,9 +38,19 @@ export function Products({ onAddToCart }: ProductsProps) {
         if (selectedCategory) {
             setLoading(true);
             axios
-                .get(
+                .get<IProduct[]>(
                     `https://fakestoreapi.com/products/category/${selectedCategory}`
                 )
+                .then((res) => {
+                    setProducts(res.data);
+                })
+                .catch((e) => console.log(e))
+                .finally(() => setLoading(false));
+        } else {
+            // Carregar todos os produtos quando nenhuma categoria for selecionada
+            setLoading(true);
+            axios
+                .get<IProduct[]>("https://fakestoreapi.com/products")
                 .then((res) => {
                     setProducts(res.data);
                 })
@@ -50,70 +59,29 @@ export function Products({ onAddToCart }: ProductsProps) {
         }
     }, [selectedCategory]);
 
-    const handleCategorySelect = (category) => {
-        setSelectedCategory(category);
-    };
+    function handleCategorySelect(category: string) {
+        // Se a categoria clicada for a mesma que já está selecionada, desmarque-a
+        setSelectedCategory((prevCategory) =>
+            prevCategory === category ? null : category
+        );
+    }
 
     function handleOpenModal(product: IProduct) {
         setIsModalVisible(true);
         setSelectedProduct(product);
     }
 
-    useEffect(() => {
-        setLoading(true);
-        axios
-            .get("https://fakestoreapi.com/products")
-            .then((res) => {
-                setProducts(res.data);
-            })
-            .catch((e) => console.log(e))
-            .finally(() => setLoading(false));
-    }, []);
-
-    const renderItem = ({ item }) => (
-        <S.Product onPress={() => handleOpenModal(item)}>
-            <S.ProductImage
-                source={{ uri: item.image }}
-                style={{ height: 120, width: 150 }}
-            />
-            <S.ProductDetails>
-                <Text size={15} weight="600">
-                    {item.title}
-                </Text>
-                <Text size={12} numberOfLines={3}>
-                    {item.description}
-                </Text>
-                <Text weight="600">{formatCurrency(item.price)}</Text>
-            </S.ProductDetails>
-            <S.AddToCartBtn onPress={() => onAddToCart(item)}>
-                <PlusCircle />
-            </S.AddToCartBtn>
-        </S.Product>
-    );
-
-    const renderCategories = ({ item }) => (
-        <Category>
-            <TouchableOpacity onPress={() => handleCategorySelect(item)}>
-                <Icon>
-                    <Text>{item}</Text>
-                </Icon>
-            </TouchableOpacity>
-        </Category>
-    );
-
     return (
-        <>
-            {loading ? (
+        <View>
+            {loading && (
                 <View>
                     <Text>Loading...</Text>
                 </View>
-            ) : null}
-            <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                data={categories}
-                keyExtractor={(item) => item}
-                renderItem={renderCategories}
+            )}
+            <Categories
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onSelectCategory={handleCategorySelect}
             />
             <ProductsModal
                 visible={isModalVisible}
@@ -124,9 +92,15 @@ export function Products({ onAddToCart }: ProductsProps) {
             <FlatList
                 data={products}
                 showsVerticalScrollIndicator={false}
-                keyExtractor={(products) => products.id}
-                renderItem={renderItem}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <ProductItem
+                        product={item}
+                        onOpenModal={handleOpenModal}
+                        onAddToCart={onAddToCart}
+                    />
+                )}
             />
-        </>
+        </View>
     );
 }
