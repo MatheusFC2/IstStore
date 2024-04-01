@@ -31,7 +31,7 @@ Necessário de um <strong>Device(Emulador)</strong>, caso voce tenha MacOS você
     -   [ x ] Carousel de Imagens;
     -   [ x ] Detalhe dos produtos (Titulo, Descrição, Preço);
 
-    Carinho de compras:
+    Carrinho de compras:
 
     -   [ x ] Atualizar a quantidade de um produto no carrinho;
     -   [ x ] Excluir um item do carrinho;
